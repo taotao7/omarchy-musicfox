@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "taotao7.musicfox",
   "name": "Musicfox",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Eliot Xu",
   "license": "MIT",
   "description": "An independent NetEase Cloud Music player for the Omarchy bar, inspired by go-musicfox.",

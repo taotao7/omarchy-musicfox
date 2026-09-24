@@ -2,7 +2,7 @@
 
 English | [简体中文](README.md)
 
-**Current development version: 0.1.1.** The project will remain in the `0.x`
+**Current development version: 0.1.2.** The project will remain in the `0.x`
 series until its plugin API, account storage, and playback behavior are stable.
 
 An independent NetEase Cloud Music client for Omarchy Quattro. It is inspired

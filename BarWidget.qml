@@ -158,6 +158,7 @@ BarWidget {
         spacing: Style.space(12)
 
         Rectangle {
+          id: coverArt
           width: Style.space(82)
           height: width
           radius: Style.space(10)
@@ -180,7 +181,8 @@ BarWidget {
         }
 
         Column {
-          width: parent.width - Style.space(94)
+          width: parent.width - coverArt.width - Style.space(12) -
+            (headerLogout.visible ? headerLogout.width + Style.space(12) : 0)
           anchors.verticalCenter: parent.verticalCenter
           spacing: Style.space(4)
           Text {
@@ -209,6 +211,14 @@ BarWidget {
             font.family: root.bar ? root.bar.fontFamily : Style.font.family
             font.pixelSize: Style.font.caption
           }
+        }
+
+        MiniButton {
+          id: headerLogout
+          anchors.verticalCenter: parent.verticalCenter
+          visible: root.music && root.music.loggedIn
+          label: root.t("logout")
+          onClicked: root.music.logout()
         }
       }
 
@@ -256,55 +266,88 @@ BarWidget {
         }
       }
 
-      Row {
+      Item {
         width: parent.width
-        height: Style.space(36)
-        spacing: Style.space(7)
-        MiniButton { label: "󰒮"; enabled: root.music && root.music.hasTrack; onClicked: root.music.previous() }
+        height: Style.space(42)
+
         MiniButton {
-          label: root.music && root.music.playback.playing ? "󰏤" : "󰐊"
-          active: root.music && root.music.playback.playing
-          enabled: root.music && root.music.hasTrack
-          onClicked: root.music.toggle()
-        }
-        MiniButton { label: "󰒭"; enabled: root.music && root.music.hasTrack; onClicked: root.music.next() }
-        MiniButton {
+          id: playbackModeButton
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
           label: root.music && root.music.playback.mode === "repeat" ? "󰑘  " + root.t("modeRepeat") :
             (root.music && root.music.playback.mode === "shuffle" ? "󰒝  " + root.t("modeShuffle") : "󰑖  " + root.t("modeList"))
           enabled: root.music && root.music.hasTrack
           onClicked: root.music.cycleMode()
         }
-        MiniButton {
-          label: root.music && root.music.playback.liked ? "󰋑" : "󰋕"
-          active: root.music && root.music.playback.liked
-          enabled: root.music && root.music.loggedIn && root.music.hasTrack
-          onClicked: root.music.toggleLike()
-        }
-        Item { width: Math.max(0, parent.width - Style.space(286)); height: 1 }
-        Text {
-          anchors.verticalCenter: parent.verticalCenter
-          text: "󰕾"
-          color: root.mutedColor
-          font.family: root.bar ? root.bar.fontFamily : Style.font.family
-          font.pixelSize: Style.font.body
-        }
-        Rectangle {
-          anchors.verticalCenter: parent.verticalCenter
-          width: Style.space(62)
-          height: Style.space(5)
-          radius: height / 2
-          color: Util.alpha(root.textColor, 0.16)
-          Rectangle {
-            width: parent.width * Math.max(0, Math.min(1,
-              Number(root.music ? root.music.playback.volume : 70) / 100))
-            height: parent.height
-            radius: height / 2
-            color: root.accentColor
+
+        Row {
+          anchors.centerIn: parent
+          spacing: Style.space(7)
+          MiniButton {
+            implicitWidth: Style.space(36)
+            implicitHeight: Style.space(36)
+            label: "󰒮"
+            enabled: root.music && root.music.hasTrack
+            onClicked: root.music.previous()
           }
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: function(mouse) { if (root.music) root.music.setVolume(100 * mouse.x / width) }
+          MiniButton {
+            implicitWidth: Style.space(42)
+            implicitHeight: Style.space(42)
+            label: root.music && root.music.playback.playing ? "󰏤" : "󰐊"
+            active: root.music && root.music.playback.playing
+            enabled: root.music && root.music.hasTrack
+            onClicked: root.music.toggle()
+          }
+          MiniButton {
+            implicitWidth: Style.space(36)
+            implicitHeight: Style.space(36)
+            label: "󰒭"
+            enabled: root.music && root.music.hasTrack
+            onClicked: root.music.next()
+          }
+        }
+
+        Row {
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          spacing: Style.space(7)
+          MiniButton {
+            label: root.music && root.music.playback.liked ? "󰋑" : "󰋕"
+            active: root.music && root.music.playback.liked
+            enabled: root.music && root.music.loggedIn && root.music.hasTrack
+            onClicked: root.music.toggleLike()
+          }
+          Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
+            width: 1
+            height: Style.space(22)
+            color: Util.alpha(root.textColor, 0.16)
+          }
+          Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: "󰕾"
+            color: root.mutedColor
+            font.family: root.bar ? root.bar.fontFamily : Style.font.family
+            font.pixelSize: Style.font.body
+          }
+          Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
+            width: Style.space(52)
+            height: Style.space(5)
+            radius: height / 2
+            color: Util.alpha(root.textColor, 0.16)
+            Rectangle {
+              width: parent.width * Math.max(0, Math.min(1,
+                Number(root.music ? root.music.playback.volume : 70) / 100))
+              height: parent.height
+              radius: height / 2
+              color: root.accentColor
+            }
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              onClicked: function(mouse) { if (root.music) root.music.setVolume(100 * mouse.x / width) }
+            }
           }
         }
       }
@@ -463,18 +506,14 @@ BarWidget {
           MiniButton { label: root.t("lyrics"); active: root.showLyrics; enabled: root.music.hasTrack; onClicked: root.showLyrics = true }
         }
 
-        Row {
+        Text {
           width: parent.width
-          Text {
-            width: parent.width - logoutButton.width
-            text: root.showLyrics ? root.t("lyrics") : root.music.viewTitle
-            color: root.textColor
-            elide: Text.ElideRight
-            font.family: root.bar ? root.bar.fontFamily : Style.font.family
-            font.pixelSize: Style.font.body
-            font.bold: true
-          }
-          MiniButton { id: logoutButton; label: root.t("logout"); onClicked: root.music.logout() }
+          text: root.showLyrics ? root.t("lyrics") : root.music.viewTitle
+          color: root.textColor
+          elide: Text.ElideRight
+          font.family: root.bar ? root.bar.fontFamily : Style.font.family
+          font.pixelSize: Style.font.body
+          font.bold: true
         }
 
         Flickable {

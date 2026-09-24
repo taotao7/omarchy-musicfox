@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-09-24
+
+### Changed
+
+- Reorganize the player toolbar into distinct mode, centered transport, and
+  favorite/volume groups for clearer visual hierarchy.
+- Move sign-out into the track header so playlist titles have a dedicated row.
+- Update the public preview to show the refined signed-in layout.
+
 ## [0.1.1] - 2026-09-24
 
 ### Fixed

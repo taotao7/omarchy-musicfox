@@ -63,7 +63,7 @@ func main() {
 	_ = app.restoreAccount()
 	app.emit("ready", map[string]any{
 		"loggedIn": app.profile.UserID != "", "profile": app.profile,
-		"playback": app.playbackPayload(), "version": "0.1.1",
+		"playback": app.playbackPayload(), "version": "0.1.2",
 	})
 
 	scanner := bufio.NewScanner(os.Stdin)
