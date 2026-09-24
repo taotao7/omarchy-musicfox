@@ -2,9 +2,6 @@
 
 English | [简体中文](README.md)
 
-**Current development version: 0.1.3.** The project will remain in the `0.x`
-series until its plugin API, account storage, and playback behavior are stable.
-
 An independent NetEase Cloud Music client for Omarchy Quattro. It is inspired
 by the capabilities of [go-musicfox](https://github.com/go-musicfox/go-musicfox),
 but it does not install, launch, or call the `musicfox` executable.

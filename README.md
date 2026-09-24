@@ -2,9 +2,6 @@
 
 [English](README.en.md) | 简体中文
 
-**当前开发版本：0.1.3。** 在插件接口、账户存储与播放行为稳定之前，项目将保持
-`0.x` 版本，不会提前标记为 `1.0.0`。
-
 一个原生的 [Omarchy Quattro](https://omarchy.org/manual/shell-plugins/) 网易云音乐插件。
 它借鉴 [go-musicfox](https://github.com/go-musicfox/go-musicfox) 的产品能力，但不是它的
 控制器，也不会安装、启动或调用 `musicfox`：登录、内容浏览、播放队列和播放器均由本插件独立实现。
