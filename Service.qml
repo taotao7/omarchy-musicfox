@@ -60,6 +60,7 @@ Item {
       lastError = t("serviceNotReady")
       return ""
     }
+    lastError = ""
     requestSequence += 1
     var id = "qml-" + requestSequence
     busy = true

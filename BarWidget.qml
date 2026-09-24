@@ -136,12 +136,13 @@ BarWidget {
     onExited: if (root.bar) root.bar.hideTooltip(root)
   }
 
-  PopupCard {
+  KeyboardPanel {
     id: popup
     anchorItem: root
     bar: root.bar
     owner: root
     open: root.popupOpen
+    focusTarget: root.music && root.music.loggedIn ? searchInput : cookieInput
     contentWidth: popup.fittedContentWidth(Style.space(470))
     contentHeight: popup.fittedContentHeight(Style.space(
       root.music && root.music.loggedIn ? 650 :
@@ -465,12 +466,15 @@ BarWidget {
             height: Style.space(36)
             radius: Style.space(8)
             color: Util.alpha(root.textColor, 0.12)
+            border.width: 1
+            border.color: searchInput.activeFocus ? root.accentColor : Util.alpha(root.textColor, 0.14)
             TextInput {
               id: searchInput
               anchors.fill: parent
               anchors.margins: Style.space(9)
               verticalAlignment: TextInput.AlignVCenter
               color: root.textColor
+              selectionColor: root.accentColor
               clip: true
               font.family: root.bar ? root.bar.fontFamily : Style.font.family
               font.pixelSize: Style.font.bodySmall
