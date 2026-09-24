@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-09-24
+
+### Fixed
+
+- Restore keyboard focus and visible focus styling for the popup search input.
+- Clear stale service errors when retrying a request.
+
+### Changed
+
+- Tighten the public preview crop around the complete player panel.
+
 ## [0.1.2] - 2026-09-24
 
 ### Changed
