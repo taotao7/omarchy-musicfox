@@ -11,6 +11,7 @@ Item {
   property bool ready: false
   property bool loggedIn: false
   property bool busy: false
+  property bool mprisEnabled: false
   property string lastError: ""
   property string uiLocale: I18n.resolve("Auto", Quickshell.env("LANG"))
   property string activeView: "home"
@@ -123,6 +124,10 @@ Item {
   }
   function toggleLike() { return send("like", {liked: !Boolean(playback.liked)}) }
   function setQuality(quality) { return send("quality", {quality: quality}) }
+  function setMpris(enabled) {
+    mprisEnabled = Boolean(enabled)
+    return ready ? send("mpris", {enabled: mprisEnabled}) : ""
+  }
 
   function formatDuration(seconds) {
     var value = Math.max(0, Math.floor(Number(seconds) || 0))
@@ -151,6 +156,7 @@ Item {
       loggedIn = Boolean(data.loggedIn)
       profile = data.profile || {}
       applyPlayback(data.playback)
+      send("mpris", {enabled: mprisEnabled})
       if (loggedIn) loadHome()
     } else if (message.event === "response") {
       busy = false

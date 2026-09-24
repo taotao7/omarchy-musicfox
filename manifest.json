@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "taotao7.musicfox",
   "name": "Musicfox",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Eliot Xu",
   "license": "MIT",
   "description": "An independent NetEase Cloud Music player for the Omarchy bar, inspired by go-musicfox.",
@@ -26,6 +26,7 @@
       "hideWhenIdle": false,
       "maxLabelWidth": 220,
       "audioQuality": "higher",
+      "mprisEnabled": false,
       "language": "Auto"
     },
     "schema": [
@@ -57,6 +58,12 @@
         "label": "Audio quality",
         "options": ["standard", "higher", "exhigh", "lossless", "hires"],
         "defaultValue": "higher"
+      },
+      {
+        "key": "mprisEnabled",
+        "type": "boolean",
+        "label": "System media controls (may also appear in Omarchy Media)",
+        "defaultValue": false
       },
       {
         "key": "language",

@@ -19,6 +19,7 @@ type Snapshot struct {
 	Duration float64 `json:"duration"`
 	Volume   float64 `json:"volume"`
 	Idle     bool    `json:"idle"`
+	Paused   bool    `json:"-"`
 }
 
 type Event struct {
@@ -48,7 +49,7 @@ func New(runtimeDir string, onChange func(Snapshot), onEnd func()) (*MPV, error)
 		socket:   filepath.Join(runtimeDir, "mpv.sock"),
 		onChange: onChange,
 		onEnd:    onEnd,
-		snapshot: Snapshot{Volume: 70, Idle: true},
+		snapshot: Snapshot{Volume: 70, Idle: true, Paused: true},
 	}, nil
 }
 
@@ -61,7 +62,7 @@ func (mpv *MPV) Start() error {
 	_ = os.Remove(mpv.socket)
 	mpv.command = exec.Command("mpv",
 		"--idle=yes", "--no-video", "--audio-display=no", "--terminal=no",
-		"--input-terminal=no", "--really-quiet", "--volume=70",
+		"--input-terminal=no", "--load-scripts=no", "--really-quiet", "--volume=70",
 		"--input-ipc-server="+mpv.socket,
 		"--http-header-fields=Referer: https://music.163.com/,User-Agent: Mozilla/5.0",
 	)
@@ -101,14 +102,31 @@ func (mpv *MPV) Load(streamURL string) error {
 
 func (mpv *MPV) Toggle() error {
 	mpv.mu.Lock()
-	paused := mpv.snapshot.Playing
-	mpv.mu.Unlock()
-	return mpv.Send("set_property", "pause", paused)
+	defer mpv.mu.Unlock()
+	return mpv.setPausedLocked(!mpv.snapshot.Paused)
 }
 
-func (mpv *MPV) Pause() error { return mpv.Send("set_property", "pause", true) }
-func (mpv *MPV) Play() error  { return mpv.Send("set_property", "pause", false) }
+func (mpv *MPV) Pause() error { return mpv.setPaused(true) }
+func (mpv *MPV) Play() error  { return mpv.setPaused(false) }
 func (mpv *MPV) Stop() error  { return mpv.Send("stop") }
+
+func (mpv *MPV) setPaused(paused bool) error {
+	mpv.mu.Lock()
+	defer mpv.mu.Unlock()
+	return mpv.setPausedLocked(paused)
+}
+
+func (mpv *MPV) setPausedLocked(paused bool) error {
+	if mpv.conn == nil {
+		return errors.New("mpv is not running")
+	}
+	if err := mpv.sendLocked([]any{"set_property", "pause", paused}); err != nil {
+		return err
+	}
+	mpv.snapshot.Paused = paused
+	mpv.snapshot.Playing = playing(mpv.snapshot.Paused, mpv.snapshot.Idle)
+	return nil
+}
 
 func (mpv *MPV) Seek(seconds float64) error {
 	return mpv.Send("seek", seconds, "absolute", "exact")
@@ -185,8 +203,7 @@ func (mpv *MPV) applyProperty(name string, value any) {
 	mpv.mu.Lock()
 	switch name {
 	case "pause":
-		paused, _ := value.(bool)
-		mpv.snapshot.Playing = !paused
+		mpv.snapshot.Paused, _ = value.(bool)
 	case "time-pos":
 		mpv.snapshot.Position, _ = value.(float64)
 	case "duration":
@@ -195,10 +212,8 @@ func (mpv *MPV) applyProperty(name string, value any) {
 		mpv.snapshot.Volume, _ = value.(float64)
 	case "core-idle":
 		mpv.snapshot.Idle, _ = value.(bool)
-		if mpv.snapshot.Idle {
-			mpv.snapshot.Playing = false
-		}
 	}
+	mpv.snapshot.Playing = playing(mpv.snapshot.Paused, mpv.snapshot.Idle)
 	snapshot := mpv.snapshot
 	shouldNotify := name != "time-pos" || time.Since(mpv.lastNotify) >= 250*time.Millisecond
 	if shouldNotify {
@@ -224,9 +239,14 @@ func (mpv *MPV) waitProcess(command *exec.Cmd) {
 	mpv.command = nil
 	mpv.snapshot.Playing = false
 	mpv.snapshot.Idle = true
+	mpv.snapshot.Paused = true
 	snapshot := mpv.snapshot
 	mpv.mu.Unlock()
 	if mpv.onChange != nil {
 		mpv.onChange(snapshot)
 	}
+}
+
+func playing(paused, idle bool) bool {
+	return !paused && !idle
 }

@@ -2,7 +2,7 @@
 
 [English](README.en.md) | 简体中文
 
-**当前开发版本：0.1.0。** 在插件接口、账户存储与播放行为稳定之前，项目将保持
+**当前开发版本：0.1.1。** 在插件接口、账户存储与播放行为稳定之前，项目将保持
 `0.x` 版本，不会提前标记为 `1.0.0`。
 
 一个原生的 [Omarchy Quattro](https://omarchy.org/manual/shell-plugins/) 网易云音乐插件。
@@ -19,7 +19,7 @@
 - 封面、歌词与翻译歌词、播放进度、跳转、音量、喜欢歌曲
 - `standard` 至 `hires` 等网易云音质等级的后端支持
 - 自动跟随系统语言，并可手动选择简体中文或 English
-- MPRIS 系统媒体会话，可使用键盘媒体键及兼容的桌面控制器
+- 可选 MPRIS 系统媒体会话，可使用键盘媒体键及兼容的桌面控制器
 - 原生 Omarchy 顶栏状态与完整弹出面板
 - 登录 Cookie 持久化到本机，不把账户数据交给插件作者或第三方服务
 
@@ -100,9 +100,14 @@ omarchy bar set taotao7.musicfox displayMode "Title and artist"
 omarchy bar set taotao7.musicfox hideWhenIdle false
 omarchy bar set taotao7.musicfox maxLabelWidth 220
 omarchy bar set taotao7.musicfox audioQuality higher
+omarchy bar set taotao7.musicfox mprisEnabled false
 omarchy bar set taotao7.musicfox language Auto
 omarchy bar move taotao7.musicfox --section center
 ```
+
+MPRIS 默认关闭，因为启用后 Omarchy 自带的 `omarchy.media` 也会显示当前歌曲，与
+Musicfox 自己的顶栏组件形成重复。需要媒体键时可将 `mprisEnabled` 设为 `true`；这不会
+让内部 mpv 再额外注册一个媒体会话。
 
 ## 从源码构建与验证
 

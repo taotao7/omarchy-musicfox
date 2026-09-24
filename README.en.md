@@ -2,7 +2,7 @@
 
 English | [简体中文](README.md)
 
-**Current development version: 0.1.0.** The project will remain in the `0.x`
+**Current development version: 0.1.1.** The project will remain in the `0.x`
 series until its plugin API, account storage, and playback behavior are stable.
 
 An independent NetEase Cloud Music client for Omarchy Quattro. It is inspired
@@ -20,7 +20,7 @@ but it does not install, launch, or call the `musicfox` executable.
   next, list repeat, track repeat, and shuffle
 - Configurable quality from `standard` through `hires`
 - Automatic locale detection with explicit English and Simplified Chinese modes
-- MPRIS integration for hardware media keys and desktop media controllers
+- Optional MPRIS integration for hardware media keys and desktop controllers
 - Native Omarchy bar state and popup UI
 
 ## Requirements and architecture
@@ -81,8 +81,14 @@ omarchy bar set taotao7.musicfox displayMode "Title and artist"
 omarchy bar set taotao7.musicfox hideWhenIdle false
 omarchy bar set taotao7.musicfox maxLabelWidth 220
 omarchy bar set taotao7.musicfox audioQuality higher
+omarchy bar set taotao7.musicfox mprisEnabled false
 omarchy bar set taotao7.musicfox language Auto
 ```
+
+MPRIS is disabled by default because Omarchy's `omarchy.media` widget also
+shows every MPRIS session, duplicating Musicfox in the bar. Enable
+`mprisEnabled` when hardware media keys are preferred. The private mpv process
+never registers an additional session.
 
 ## Build and verify
 

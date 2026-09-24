@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-09-24
+
+### Fixed
+
+- Keep playback state correct regardless of the order in which mpv reports
+  pause and idle changes, so the play/pause button responds reliably.
+- Prevent the private mpv process from loading the system `mpv-mpris` script,
+  which exposed the same track as a second media player.
+- Make MPRIS system controls opt-in to avoid duplicating Musicfox in the
+  Omarchy bar when `omarchy.media` is also enabled.
+
+### Changed
+
+- Replace the public screenshot with the complete signed-in player panel.
+
 ## [0.1.0] - 2026-09-24
 
 ### Added

@@ -28,6 +28,7 @@ type Command struct {
 type App struct {
 	mu       sync.Mutex
 	emitMu   sync.Mutex
+	mprisMu  sync.Mutex
 	client   *netease.Client
 	player   *player.MPV
 	mpris    *mpris.Server
@@ -58,26 +59,11 @@ func main() {
 		fatal(err)
 	}
 	defer app.player.Close()
-	app.mpris, err = mpris.New(mpris.Callbacks{
-		State: app.mprisState,
-		Next:  app.next, Previous: app.previous,
-		Pause: app.player.Pause, Play: app.player.Play, PlayPause: app.player.Toggle,
-		Stop: app.player.Stop,
-		Seek: func(offset float64) error {
-			return app.player.Seek(app.player.Snapshot().Position + offset)
-		},
-		SetPosition: app.player.Seek, SetVolume: app.player.SetVolume,
-		SetMode: app.setMode,
-	})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	} else {
-		defer app.mpris.Close()
-	}
+	defer app.setMPRIS(false)
 	_ = app.restoreAccount()
 	app.emit("ready", map[string]any{
 		"loggedIn": app.profile.UserID != "", "profile": app.profile,
-		"playback": app.playbackPayload(), "version": "0.1.0",
+		"playback": app.playbackPayload(), "version": "0.1.1",
 	})
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -220,6 +206,10 @@ func (app *App) handle(command Command) {
 	case "quality":
 		app.client.SetQuality(stringArg(args, "quality"))
 		respond("quality", map[string]any{"ok": true}, nil)
+	case "mpris":
+		enabled := boolArg(args, "enabled")
+		err := app.setMPRIS(enabled)
+		respond("mpris", map[string]any{"enabled": enabled && err == nil}, err)
 	default:
 		respond("unknown", nil, fmt.Errorf("unknown command %q", command.Command))
 	}
@@ -315,9 +305,7 @@ func (app *App) previous() {
 
 func (app *App) onPlayback(snapshot player.Snapshot) {
 	app.emit("playback", app.playbackPayloadWith(snapshot))
-	if app.mpris != nil {
-		app.mpris.Update()
-	}
+	app.updateMPRIS()
 }
 
 func (app *App) mprisState() mpris.State {
@@ -337,6 +325,43 @@ func (app *App) setMode(mode string) {
 	app.mode = mode
 	app.mu.Unlock()
 	app.emit("playback", app.playbackPayload())
+	app.updateMPRIS()
+}
+
+func (app *App) setMPRIS(enabled bool) error {
+	app.mprisMu.Lock()
+	defer app.mprisMu.Unlock()
+	if !enabled {
+		if app.mpris != nil {
+			app.mpris.Close()
+			app.mpris = nil
+		}
+		return nil
+	}
+	if app.mpris != nil {
+		return nil
+	}
+	server, err := mpris.New(mpris.Callbacks{
+		State: app.mprisState,
+		Next:  app.next, Previous: app.previous,
+		Pause: app.player.Pause, Play: app.player.Play, PlayPause: app.player.Toggle,
+		Stop: app.player.Stop,
+		Seek: func(offset float64) error {
+			return app.player.Seek(app.player.Snapshot().Position + offset)
+		},
+		SetPosition: app.player.Seek, SetVolume: app.player.SetVolume,
+		SetMode: app.setMode,
+	})
+	if err != nil {
+		return err
+	}
+	app.mpris = server
+	return nil
+}
+
+func (app *App) updateMPRIS() {
+	app.mprisMu.Lock()
+	defer app.mprisMu.Unlock()
 	if app.mpris != nil {
 		app.mpris.Update()
 	}

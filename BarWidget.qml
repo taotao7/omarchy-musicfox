@@ -16,6 +16,7 @@ BarWidget {
   readonly property string displayMode: String(setting("displayMode", "Title and artist"))
   readonly property bool hideWhenIdle: Boolean(setting("hideWhenIdle", false))
   readonly property string audioQuality: String(setting("audioQuality", "higher"))
+  readonly property bool mprisEnabled: Boolean(setting("mprisEnabled", false))
   readonly property string languageSetting: String(setting("language", "Auto"))
   readonly property string uiLocale: I18n.resolve(languageSetting, Quickshell.env("LANG"))
   readonly property real maxLabelWidth: Math.max(80, Math.min(500,
@@ -34,13 +35,16 @@ BarWidget {
   property string cookieText: ""
 
   onAudioQualityChanged: if (music && music.ready) music.setQuality(audioQuality)
+  onMprisEnabledChanged: if (music && music.ready) music.setMpris(mprisEnabled)
   onUiLocaleChanged: if (music) music.uiLocale = uiLocale
+  Component.onCompleted: if (music) music.setMpris(mprisEnabled)
 
   function t(key) { return I18n.text(uiLocale, key) }
 
   function open() {
     popupOpen = true
     if (music) music.uiLocale = uiLocale
+    if (music) music.setMpris(mprisEnabled)
     if (music && music.ready) music.setQuality(audioQuality)
     if (music && music.ready && !music.loggedIn &&
         (music.qrImage === "" || music.qrCode === 800)) music.startQrLogin()
