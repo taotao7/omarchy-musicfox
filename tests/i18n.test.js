@@ -1,0 +1,15 @@
+const assert = require("node:assert/strict")
+const i18n = require("../I18n.js")
+
+assert.equal(i18n.resolve("Auto", "zh_CN.UTF-8"), "zh")
+assert.equal(i18n.resolve("Auto", "en_US.UTF-8"), "en")
+assert.equal(i18n.resolve("简体中文", "en_US.UTF-8"), "zh")
+assert.equal(i18n.resolve("English", "zh_CN.UTF-8"), "en")
+assert.equal(i18n.text("zh", "login"), "登录网易云音乐")
+assert.equal(i18n.text("en", "login"), "Sign in to NetEase Cloud Music")
+assert.equal(i18n.text("zh", "qrRefresh"), "刷新二维码")
+assert.equal(i18n.text("en", "qrRefresh"), "Refresh QR code")
+assert.equal(i18n.text("unknown-locale", "search"), "Search")
+assert.equal(i18n.text("en", "missing-key"), "missing-key")
+
+console.log("i18n tests passed")

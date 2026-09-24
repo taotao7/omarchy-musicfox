@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "taotao7.musicfox",
+  "name": "Musicfox",
+  "version": "0.1.0",
+  "author": "Eliot Xu",
+  "license": "MIT",
+  "description": "An independent NetEase Cloud Music player for the Omarchy bar, inspired by go-musicfox.",
+  "kinds": [
+    "service",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Musicfox",
+    "description": "Independent NetEase player with login, discovery, library, lyrics, queues, and playback controls.",
+    "category": "Media",
+    "allowMultiple": false,
+    "defaultSection": "center",
+    "defaults": {
+      "displayMode": "Title and artist",
+      "hideWhenIdle": false,
+      "maxLabelWidth": 220,
+      "audioQuality": "higher",
+      "language": "Auto"
+    },
+    "schema": [
+      {
+        "key": "displayMode",
+        "type": "enum",
+        "label": "Bar label",
+        "options": ["Title and artist", "Title", "Icon only"],
+        "defaultValue": "Title and artist"
+      },
+      {
+        "key": "hideWhenIdle",
+        "type": "boolean",
+        "label": "Hide when nothing is playing",
+        "defaultValue": false
+      },
+      {
+        "key": "maxLabelWidth",
+        "type": "integer",
+        "label": "Maximum label width",
+        "min": 80,
+        "max": 500,
+        "step": 10,
+        "defaultValue": 220
+      },
+      {
+        "key": "audioQuality",
+        "type": "enum",
+        "label": "Audio quality",
+        "options": ["standard", "higher", "exhigh", "lossless", "hires"],
+        "defaultValue": "higher"
+      },
+      {
+        "key": "language",
+        "type": "enum",
+        "label": "Language / 语言",
+        "options": ["Auto", "简体中文", "English"],
+        "defaultValue": "Auto"
+      }
+    ]
+  }
+}
