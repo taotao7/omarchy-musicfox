@@ -24,7 +24,7 @@ type Client struct {
 	mu         sync.Mutex
 	jar        *cookiejar.Jar
 	cookiePath string
-	qr         *service.LoginQRService
+	qrKey      string
 	qrPath     string
 	quality    service.SongQualityLevel
 	musicURL   *url.URL
@@ -119,44 +119,33 @@ func (client *Client) ImportCookie(raw string) error {
 func (client *Client) StartQR() (QRStatus, error) {
 	client.mu.Lock()
 	defer client.mu.Unlock()
-	qr := &service.LoginQRService{}
-	code, body, loginURL, err := qr.GetKey()
+	key, loginURL, err := qrGetKey(client.jar)
 	if err != nil {
 		return QRStatus{}, err
-	}
-	if code != 200 || loginURL == "" {
-		return QRStatus{}, fmt.Errorf("QR key request failed (%v): %s", code, compact(body))
 	}
 	if err := qrcode.WriteFile(loginURL, qrcode.Medium, 360, client.qrPath); err != nil {
 		return QRStatus{}, fmt.Errorf("render QR code: %w", err)
 	}
-	client.qr = qr
+	client.qrKey = key
 	return QRStatus{Code: 801, Message: "waiting", Image: client.qrPath, URL: loginURL}, nil
 }
 
 func (client *Client) CheckQR() (QRStatus, error) {
 	client.mu.Lock()
 	defer client.mu.Unlock()
-	if client.qr == nil {
+	if client.qrKey == "" {
 		return QRStatus{}, errors.New("QR login has not been started")
 	}
-	_, body, err := client.qr.CheckQR()
+	response, err := qrCheck(client.qrKey, client.jar)
 	if err != nil {
 		return QRStatus{}, err
-	}
-	var response struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	}
-	if err := json.Unmarshal(body, &response); err != nil {
-		return QRStatus{}, fmt.Errorf("decode QR status: %w", err)
 	}
 	status := QRStatus{Code: response.Code, Message: response.Message, Image: client.qrPath}
 	if response.Code == 803 {
 		if err := client.save(); err != nil {
 			return status, err
 		}
-		client.qr = nil
+		client.qrKey = ""
 	}
 	return status, nil
 }
