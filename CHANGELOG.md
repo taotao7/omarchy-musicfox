@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.4] - 2026-09-28
+
+### Fixed
+
+- Avoid NetEase QR-login risk-control failures by using a Chrome-compatible TLS
+  fingerprint and browser request headers for QR key and status requests.
+
 ## [0.1.3] - 2026-09-24
 
 ### Fixed
